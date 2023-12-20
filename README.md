@@ -1,3 +1,2 @@
-# ChickFunOmics
-##
-# Welcome to Chicken Genomics and Epigenomics Functional  Regulation- ${{\color{Purple}\Huge{\textsf{ChickFunOmics}}}}\$ :chicken:  <br />
+# ${{\color{Purple}\Huge{\textsf{ChickFunOmics}}}}\$ :chicken:  <br />
+# Welcome to Chicken Genomics and Epigenomics Functional  Regulation. 
