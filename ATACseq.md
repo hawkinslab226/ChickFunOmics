@@ -1,4 +1,4 @@
-# Collection of Pipelines and Jobs to perform Chromatin Data Analysis (ATAC-Seq) <br />
+#  Repertoire of Pipelines and Jobs to perform Chromatin Data Analysis (ATAC-Seq) <br />
 
 :large_orange_diamond: **Contents**:  <br />
 * **ATAC-Seq Codes**  <br />
