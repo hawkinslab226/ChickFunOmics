@@ -15,6 +15,6 @@ bash FRiP_Score.sh  ${bam file}  ${broadPeak or NarrowPeak}
 ``` 
 *using MACS2 ouptuts  <br />
 
-
+:o: **RNA-Seq data analysis repertoire**  <br />
 
 
