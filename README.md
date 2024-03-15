@@ -15,6 +15,11 @@ bash FRiP_Score.sh  ${bam file}  ${broadPeak or NarrowPeak}
 ``` 
 *using MACS2 ouptuts  <br />
 
+:o: **RNA-Seq data analysis repertoire**  <br />
 
+:small_blue_diamond: Differentially Expressed Genes (DGEs)  <br />
+:link: https://github.com/hawkinslab226/ChickFunOmics/tree/main/DEGs_analysis  <br />
 
+:o: **Cut&Tag data analysis repertoire** <br />
+:link: https://github.com/hawkinslab226/ChickFunOmics/blob/main/C%26T.md  <br />
 
