@@ -115,15 +115,15 @@ phenodata= read.table("/Users/kennethlai/desktop/HAWKINS/FAANg/RNAseq/QC/data/ph
     ##print out first 21 lines of resulting ordered dds 
     #head(resod12, 21)
     #6. Select only rows wheree log fold change >= abs.value of 1--> (logFC >=|1|)
-    resreproductive <- subset(resreproductive, abs(log2FoldChange) >=1)
-    resod12 <- subset(resod12, abs(log2FoldChange) >=1)
-    resod13 <- subset(resod13, abs(log2FoldChange) >=1)
-    resod1o <- subset(resod1o, abs(log2FoldChange) >=1)
-    resod23 <- subset(resod23, abs(log2FoldChange) >=1)
-    resod2o <- subset(resod2o, abs(log2FoldChange) >=1)
-    resod3o <- subset(resod3o, abs(log2FoldChange) >=1)
+    resreproductive <- subset(resreproductive, abs(log2FoldChange) >=1.5)
+    resod12 <- subset(resod12, abs(log2FoldChange) >=1.5)
+    resod13 <- subset(resod13, abs(log2FoldChange) >=1.5)
+    resod1o <- subset(resod1o, abs(log2FoldChange) >=1.5)
+    resod23 <- subset(resod23, abs(log2FoldChange) >=1.5)
+    resod2o <- subset(resod2o, abs(log2FoldChange) >=1.5)
+    resod3o <- subset(resod3o, abs(log2FoldChange) >=1.5)
     
-    resod12test <- subset(resod12test, abs(log2FoldChange) >=1)
+    resod12test <- subset(resod12test, abs(log2FoldChange) >=1.5)
   #Merging DESEQ results + normalized count data (mRNA)
     #1. merge res (DESEQ results) + dds (normalized count data from DESeqDataSet)
       ##converts res-->df 
@@ -148,34 +148,53 @@ phenodata= read.table("/Users/kennethlai/desktop/HAWKINS/FAANg/RNAseq/QC/data/ph
     names(DEdataod3o)[1] <- "Gene"
     
     names(DEdataod12test)[1] <- "Gene"
-    #head(DEdataod12)
-    #3. Create subdfs of each pairwise comparison 
-      #a. Get column indices with names containing "od1" or "od2"
-    #selected_columns_od12 <- grepl("od1|od2|Gene|baseMean|log2FoldChange|lfcSE|stat|pvalue|padj", names(DEdatareproductive))
-    #selected_columns_od13 <- grepl("od1|od3|Gene|baseMean|log2FoldChange|lfcSE|stat|pvalue|padj", names(DEdatareproductive))
-    #selected_columns_od1o <- grepl("od1|ovary|Gene|baseMean|log2FoldChange|lfcSE|stat|pvalue|padj", names(DEdatareproductive))
-    #selected_columns_od23 <- grepl("od2|od3|Gene|baseMean|log2FoldChange|lfcSE|stat|pvalue|padj", names(DEdatareproductive))
-    #selected_columns_od2o <- grepl("od2|ovary|Gene|baseMean|log2FoldChange|lfcSE|stat|pvalue|padj", names(DEdatareproductive))
-    #selected_columns_od3o <- grepl("od3|ovary|Gene|baseMean|log2FoldChange|lfcSE|stat|pvalue|padj", names(DEdatareproductive))
-     #b. Subset the data frame based on selected columns 
-    #DEdataod12 <- DEdatareproductive[, selected_columns_od12]
-    #DEdataod13 <- DEdatareproductive[, selected_columns_od13]
-    #DEdataod1o <- DEdatareproductive[, selected_columns_od1o]
-    #DEdataod23 <- DEdatareproductive[, selected_columns_od23]
-    #DEdataod2o <- DEdatareproductive[, selected_columns_od2o]
-    #DEdataod3o <- DEdatareproductive[, selected_columns_od3o]
-    #4. Write results
-    write.csv(DEdatareproductive, file="[global]DESEQ-results3.csv")
-    write.csv(DEdataod12, file="[od12]DESEQ-results3.csv")
-    write.csv(DEdataod13, file="[od13]DESEQ-results3.csv")
-    write.csv(DEdataod1o, file="[od1o]DESEQ-results3.csv")
-    write.csv(DEdataod23, file="[od23]DESEQ-results3.csv")
-    write.csv(DEdataod2o, file="[od2o]DESEQ-results3.csv")
-    write.csv(DEdataod3o, file="[od3o]DESEQ-results3.csv")
-  
-    
-    
-    
 
+
+    #3. Log-Normalize Expression Values (log(base=2)+1) and z-score normalized
+      #A. Log (base=2) +1 (pseudocount) each expression lvl 
+        #creating df_lists 
+      df_list= list(DEdatareproductive,DEdataod12,DEdataod13,DEdataod1o,DEdataod23,DEdataod2o,DEdataod3o)
+      norm_df_list=list()
+      
+        #forloop: for each df, select last 8 columns [- 1st 7 cols], applies log transf., calc. z-scored / log-ed value, re-changes values based on z-score norm., updates original df 
+      for (i in seq_along(df_list)) {
+        # Create a copy of the original data frame
+        new_df <- df_list[[i]]
+        
+        # Select the last 8 columns
+        last_eight_columns <- new_df[, (ncol(new_df) - 7):ncol(new_df)]
+        
+        # Apply the log transformation to the selected columns
+        transformed_values <- log2(last_eight_columns + 1)
+        
+        #Row normalization using z-score (have to t [transpose] since scale works by columns instead of rows)
+        normalized_values <- t(scale(t(transformed_values)))
+        
+        # Replace the selected columns in the new data frame with the row-normalized values
+        new_df[, (ncol(new_df) - 7):ncol(new_df)] <- normalized_values
+        
+        # Append the new data frame to the list
+        norm_df_list[[i]] <- new_df
+      }
+      
+      
+      #B.Creating new dfs normalized values 
+      norm_DEdatareproductive <- data.frame(norm_df_list[[1]])
+      norm_DEdataod12 <- data.frame(norm_df_list[[2]])
+      norm_DEdataod13 <- data.frame(norm_df_list[[3]])
+      norm_DEdataod1o <- data.frame(norm_df_list[[4]])
+      norm_DEdataod23 <- data.frame(norm_df_list[[5]])
+      norm_DEdataod2o <- data.frame(norm_df_list[[6]])
+      norm_DEdataod3o <- data.frame(norm_df_list[[7]])
     
+      
+    #4. Write results
+    write.csv(norm_DEdatareproductive, file="[global]DESEQ-results7.csv")
+    write.csv(norm_DEdataod12, file="[od12]DESEQ-results7.csv")
+    write.csv(norm_DEdataod13, file="[od13]DESEQ-results7.csv")
+    write.csv(norm_DEdataod1o, file="[od1o]DESEQ-results7.csv")
+    write.csv(norm_DEdataod23, file="[od23]DESEQ-results7.csv")
+    write.csv(norm_DEdataod2o, file="[od2o]DESEQ-results7.csv")
+    write.csv(norm_DEdataod3o, file="[od3o]DESEQ-results7.csv")
   
+    
